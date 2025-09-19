@@ -16,6 +16,28 @@ export const getProducts = async (req, res) => {
     }
 };
 
+
+
+
+export const createProduct = async (req,res) => {
+    const {name, image, price} = req.body;
+    try {
+        if(!name || !image || !price){
+            return res.status(400).json({success:false, message:'All fields are required'});
+        }
+
+        const newProduct = await sql`
+            INSERT INTO products (name, image, price) 
+            VALUES (${name}, ${image}, ${price})
+            RETURNING *
+        `;
+        res.status(201).json({success:true, message:'Product created successfully', data:newProduct[0]});
+    } catch (error) {
+        console.error('Error in createProduct function', error);
+        res.status(500).json({success:false, message:'Internal Server Error'});
+    }
+};
+
 export const getProduct = async (req, res) => {
     try {
         const { id } = req.params;
@@ -91,21 +113,3 @@ export const deleteProduct = async (req, res) => {
 
 };
 
-export const createProduct = async (req,res) => {
-    const {name, image, price} = req.body;
-    try {
-        if(!name || !image || !price){
-            return res.status(400).json({success:false, message:'All fields are required'});
-        }
-
-        const newProduct = await sql`
-            INSERT INTO products (name, image, price) 
-            VALUES (${name}, ${image}, ${price})
-            RETURNING *
-        `;
-        res.status(201).json({success:true, message:'Product created successfully', data:newProduct[0]});
-    } catch (error) {
-        console.error('Error in createProduct function', error);
-        res.status(500).json({success:false, message:'Internal Server Error'});
-    }
-};
